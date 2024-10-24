@@ -7,19 +7,65 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-gray-800">Posts do Blog</h1>
-        <ul class="list-group">
-            {% for post in posts %}
-                <li class="list-group-item bg-white rounded-lg p-4 my-4 shadow-md">
-                    <h2 class="text-2xl font-semibold text-gray-900">{{ post.title }}</h2>
-                    <p class="text-gray-700">{{ post.content }}</p>
-                    <p class="text-gray-500"><em>Criado em: {{ post.created_at }}</em></p>
+    <nav class="bg-white shadow-md p-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-gray-800">Full Blog</div>
+        <form action="/blog" method="GET" class="flex">
+            <input type="text" name="search" placeholder="Pesquisar..." class="border rounded-lg p-2" />
+            <button type="submit" class="ml-2 bg-blue-500 text-white rounded-lg p-2">Buscar</button>
+        </form>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8 flex">
+        <div class="w-3/4">
+            <h1 class="text-3xl font-bold text-gray-800">Posts do Blog</h1>
+            <ul class="list-group">
+                {% for post in posts %}
+                    <li class="list-group-item bg-white rounded-lg p-4 my-4 shadow-md">
+                        <h2 class="text-2xl font-semibold text-gray-900">{{ post.title }}</h2>
+                        <p class="text-gray-700">{{ post.content|truncatewords:30 }}</p>
+                        <a href="{% url 'post_detail' post.id %}" class="text-blue-500 hover:underline">Leia mais</a>
+                        <p class="text-gray-500"><em>Criado em: {{ post.created_at }}</em></p>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item bg-white rounded-lg p-4 shadow-md">Nenhum post encontrado.</li>
+                {% endfor %}
+            </ul>
+
+            <!-- Navegação de paginação -->
+            <div class="flex justify-center mt-6">
+                <ul class="inline-flex items-center">
+                    {% if posts.has_previous %}
+                        <li>
+                            <a href="?page={{ posts.previous_page_number }}" class="px-3 py-2 mx-1 bg-blue-500 text-white rounded-lg">Anterior</a>
+                        </li>
+                    {% endif %}
+                    <li>
+                        <span class="px-3 py-2 mx-1 text-gray-700">Página {{ posts.number }} de {{ posts.paginator.num_pages }}</span>
+                    </li>
+                    {% if posts.has_next %}
+                        <li>
+                            <a href="?page={{ posts.next_page_number }}" class="px-3 py-2 mx-1 bg-blue-500 text-white rounded-lg">Próxima</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="w-1/4 ml-8">
+            <h2 class="text-2xl font-bold text-gray-800">Tags</h2>
+            <ul class="list-group mt-4">
+                <li class="list-group-item bg-white rounded-lg p-2 my-2 shadow-md">
+                    <a href="/blog" class="text-blue-500 hover:underline">Todos os posts</a>
                 </li>
-            {% empty %}
-                <li class="list-group-item bg-white rounded-lg p-4 shadow-md">Nenhum post encontrado.</li>
-            {% endfor %}
-        </ul>
+                {% for tag in tags %}
+                    <li class="list-group-item bg-white rounded-lg p-2 my-2 shadow-md">
+                        <a href="?tag={{ tag.name }}" class="text-blue-500 hover:underline">{{ tag.name|title }}</a>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item bg-white rounded-lg p-2 shadow-md">Nenhuma tag encontrada.</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </body>
 </html>
